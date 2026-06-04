@@ -13,16 +13,17 @@
 
 | Workflow | Webhook | Arquivo | Status |
 |----------|---------|---------|--------|
-| Criar Projeto | POST /webhook/projeto/criar | workflows/fase1-criar-projeto.json | 🔄 Em desenvolvimento |
-| Listar Projetos | GET /webhook/projeto/listar | — | ⏳ Pendente |
-| Atualizar Status | POST /webhook/projeto/status | — | ⏳ Pendente |
+| Criar Projeto | POST /webhook/projeto/criar | workflows/fase1-criar-projeto.json | ✅ Ativo |
+| Listar Projetos | GET /webhook/projeto/listar | workflows/fase1-listar-projetos.json | ✅ Ativo |
+| Atualizar Status | POST /webhook/projeto/status | workflows/fase1-atualizar-status.json | ✅ Ativo |
 
 ## Fase 2 — Gestão de Tarefas
 
-| Workflow | Webhook | Status |
-|----------|---------|--------|
-| Criar Tarefa | POST /webhook/tarefa/criar | ⏳ Pendente |
-| Mover Tarefa no Funil | POST /webhook/tarefa/mover | ⏳ Pendente |
+| Workflow | Webhook | Arquivo | Status |
+|----------|---------|---------|--------|
+| Criar Tarefa | POST /webhook/tarefa/criar | workflows/fase2-criar-tarefa.json | 🔄 Em desenvolvimento |
+| Listar Tarefas | GET /webhook/tarefa/listar | — | ⏳ Pendente |
+| Mover Tarefa no Funil | POST /webhook/tarefa/mover | — | ⏳ Pendente |
 
 ## Fase 3 — Funil Operacional
 
