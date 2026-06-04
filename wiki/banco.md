@@ -27,11 +27,13 @@ Usuário: orq
 | Coluna | Tipo | Descrição |
 |--------|------|-----------|
 | id | SERIAL PK | |
-| nome | VARCHAR | Nome do projeto |
+| nome | VARCHAR(255) | Nome do projeto |
+| cliente | VARCHAR(255) | Cliente associado |
+| status | VARCHAR(50) | Estado no funil (default: BACKLOG) |
 | responsavel | VARCHAR | Responsável |
 | data_inicio | DATE | |
 | prazo | DATE | Data limite |
-| status | VARCHAR | Estado no funil (default: BACKLOG) |
+| criado_em | TIMESTAMP | Criação (coluna original) |
 | created_at | TIMESTAMP | |
 | updated_at | TIMESTAMP | |
 
@@ -50,8 +52,10 @@ Usuário: orq
 | Coluna | Tipo | Descrição |
 |--------|------|-----------|
 | id | SERIAL PK | |
-| usuario | VARCHAR | Quem executou |
-| acao | VARCHAR | Ex: CRIOU_PROJETO, MOVEU_TAREFA |
+| tarefa_id | INT | Referência à tarefa (legado) |
+| usuario | VARCHAR(150) | Quem executou |
+| acao | TEXT | Ex: CRIOU_PROJETO, MOVEU_TAREFA |
+| criado_em | TIMESTAMP | Criação (coluna original) |
 | entidade | VARCHAR | Ex: projeto, tarefa |
 | entidade_id | INT | ID do registro afetado |
 | detalhe | TEXT | JSON com dados antes/depois |
