@@ -1,0 +1,59 @@
+{
+  "name": "GitHub - Sync Issues e PRs",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "hours", "hoursInterval": 1 }] }
+      },
+      "id": "n1",
+      "name": "A cada hora",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const GITHUB_TOKEN = $env.GITHUB_TOKEN;\nconst REPO = 'luizinhotec/advocacia-ai-vault';\nconst PROJETO_ID = 3;\n\nasync function fetchGitHub(url) {\n  const res = await fetch(url, {\n    headers: {\n      Authorization: `Bearer ${GITHUB_TOKEN}`,\n      Accept: 'application/vnd.github+json'\n    }\n  });\n  return res.json();\n}\n\nconst [issues, prs] = await Promise.all([\n  fetchGitHub(`https://api.github.com/repos/${REPO}/issues?state=open&per_page=50`),\n  fetchGitHub(`https://api.github.com/repos/${REPO}/pulls?state=open&per_page=50`)\n]);\n\nconst tarefas = [];\n\nif (Array.isArray(issues)) {\n  for (const issue of issues) {\n    if (issue.pull_request) continue;\n    tarefas.push({\n      projeto_id: PROJETO_ID,\n      titulo: `[ISSUE #${issue.number}] ${issue.title}`,\n      descricao: (issue.body || '').substring(0, 500),\n      responsavel: issue.assignee?.login || 'nao-atribuido',\n      status: 'BACKLOG'\n    });\n  }\n}\n\nif (Array.isArray(prs)) {\n  for (const pr of prs) {\n    tarefas.push({\n      projeto_id: PROJETO_ID,\n      titulo: `[PR #${pr.number}] ${pr.title}`,\n      descricao: (pr.body || '').substring(0, 500),\n      responsavel: pr.user?.login || 'nao-atribuido',\n      status: 'ANÁLISE'\n    });\n  }\n}\n\nif (tarefas.length === 0) {\n  return [{ json: { skip: true, mensagem: 'Nenhuma issue ou PR aberta' } }];\n}\n\nreturn tarefas.map(t => ({ json: t }));"
+      },
+      "id": "n2",
+      "name": "Buscar GitHub",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [{ "id": "c1", "leftValue": "={{ $json.skip }}", "rightValue": true, "operator": { "type": "boolean", "operation": "notEquals" } }],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "n3",
+      "name": "Tem dados?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO tarefas (projeto_id, titulo, descricao, responsavel, status, created_at, updated_at)\nSELECT {{ $json.projeto_id }}, '{{ $json.titulo }}', '{{ $json.descricao }}', '{{ $json.responsavel }}', '{{ $json.status }}', NOW(), NOW()\nWHERE NOT EXISTS (\n  SELECT 1 FROM tarefas WHERE titulo = '{{ $json.titulo }}' AND projeto_id = {{ $json.projeto_id }}\n);",
+        "options": {}
+      },
+      "id": "n4",
+      "name": "Inserir Tarefa",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [900, 200],
+      "credentials": { "postgres": { "id": "postgres-orq", "name": "Postgres account" } }
+    }
+  ],
+  "connections": {
+    "A cada hora": { "main": [[{ "node": "Buscar GitHub", "type": "main", "index": 0 }]] },
+    "Buscar GitHub": { "main": [[{ "node": "Tem dados?", "type": "main", "index": 0 }]] },
+    "Tem dados?": { "main": [[{ "node": "Inserir Tarefa", "type": "main", "index": 0 }], []] }
+  },
+  "settings": { "executionOrder": "v1" }
+}
