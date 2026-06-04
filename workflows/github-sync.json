@@ -13,13 +13,51 @@
     },
     {
       "parameters": {
-        "jsCode": "const GITHUB_TOKEN = $env.GITHUB_TOKEN;\nconst REPO = 'luizinhotec/advocacia-ai-vault';\nconst PROJETO_ID = 3;\n\nasync function fetchGitHub(url) {\n  const res = await fetch(url, {\n    headers: {\n      Authorization: `Bearer ${GITHUB_TOKEN}`,\n      Accept: 'application/vnd.github+json'\n    }\n  });\n  return res.json();\n}\n\nconst [issues, prs] = await Promise.all([\n  fetchGitHub(`https://api.github.com/repos/${REPO}/issues?state=open&per_page=50`),\n  fetchGitHub(`https://api.github.com/repos/${REPO}/pulls?state=open&per_page=50`)\n]);\n\nconst tarefas = [];\n\nif (Array.isArray(issues)) {\n  for (const issue of issues) {\n    if (issue.pull_request) continue;\n    tarefas.push({\n      projeto_id: PROJETO_ID,\n      titulo: `[ISSUE #${issue.number}] ${issue.title}`,\n      descricao: (issue.body || '').substring(0, 500),\n      responsavel: issue.assignee?.login || 'nao-atribuido',\n      status: 'BACKLOG'\n    });\n  }\n}\n\nif (Array.isArray(prs)) {\n  for (const pr of prs) {\n    tarefas.push({\n      projeto_id: PROJETO_ID,\n      titulo: `[PR #${pr.number}] ${pr.title}`,\n      descricao: (pr.body || '').substring(0, 500),\n      responsavel: pr.user?.login || 'nao-atribuido',\n      status: 'ANÁLISE'\n    });\n  }\n}\n\nif (tarefas.length === 0) {\n  return [{ json: { skip: true, mensagem: 'Nenhuma issue ou PR aberta' } }];\n}\n\nreturn tarefas.map(t => ({ json: t }));"
+        "url": "https://api.github.com/repos/luizinhotec/advocacia-ai-vault/issues?state=open&per_page=50",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
       },
       "id": "n2",
-      "name": "Buscar GitHub",
+      "name": "Buscar Issues",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "github-header",
+          "name": "GitHub Header"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/repos/luizinhotec/advocacia-ai-vault/pulls?state=open&per_page=50",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "n3",
+      "name": "Buscar PRs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 420],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "github-header",
+          "name": "GitHub Header"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const issues = $('Buscar Issues').all().map(i => i.json).filter(i => !i.pull_request);\nconst prs = $('Buscar PRs').all().map(i => i.json);\nconst PROJETO_ID = 3;\nconst tarefas = [];\nfor (const issue of issues) {\n  tarefas.push({ projeto_id: PROJETO_ID, titulo: `[ISSUE #${issue.number}] ${issue.title}`, descricao: (issue.body||'').substring(0,500), responsavel: issue.assignee?.login||'nao-atribuido', status: 'BACKLOG' });\n}\nfor (const pr of prs) {\n  tarefas.push({ projeto_id: PROJETO_ID, titulo: `[PR #${pr.number}] ${pr.title}`, descricao: (pr.body||'').substring(0,500), responsavel: pr.user?.login||'nao-atribuido', status: 'ANÁLISE' });\n}\nif (tarefas.length === 0) return [{ json: { skip: true } }];\nreturn tarefas.map(t => ({ json: t }));"
+      },
+      "id": "n4",
+      "name": "Montar Tarefas",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [460, 300]
+      "position": [700, 300]
     },
     {
       "parameters": {
@@ -30,11 +68,11 @@
         },
         "options": {}
       },
-      "id": "n3",
+      "id": "n5",
       "name": "Tem dados?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [680, 300]
+      "position": [920, 300]
     },
     {
       "parameters": {
@@ -42,17 +80,19 @@
         "query": "INSERT INTO tarefas (projeto_id, titulo, descricao, responsavel, status, created_at, updated_at)\nSELECT {{ $json.projeto_id }}, '{{ $json.titulo }}', '{{ $json.descricao }}', '{{ $json.responsavel }}', '{{ $json.status }}', NOW(), NOW()\nWHERE NOT EXISTS (\n  SELECT 1 FROM tarefas WHERE titulo = '{{ $json.titulo }}' AND projeto_id = {{ $json.projeto_id }}\n);",
         "options": {}
       },
-      "id": "n4",
+      "id": "n6",
       "name": "Inserir Tarefa",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.5,
-      "position": [900, 200],
-      "credentials": { "postgres": { "id": "postgres-orq", "name": "Postgres account" } }
+      "position": [1140, 200],
+      "credentials": { "postgres": { "id": "CRED_PLACEHOLDER", "name": "Postgres account" } }
     }
   ],
   "connections": {
-    "A cada hora": { "main": [[{ "node": "Buscar GitHub", "type": "main", "index": 0 }]] },
-    "Buscar GitHub": { "main": [[{ "node": "Tem dados?", "type": "main", "index": 0 }]] },
+    "A cada hora": { "main": [[{ "node": "Buscar Issues", "type": "main", "index": 0 }, { "node": "Buscar PRs", "type": "main", "index": 0 }]] },
+    "Buscar Issues": { "main": [[{ "node": "Montar Tarefas", "type": "main", "index": 0 }]] },
+    "Buscar PRs": { "main": [[{ "node": "Montar Tarefas", "type": "main", "index": 0 }]] },
+    "Montar Tarefas": { "main": [[{ "node": "Tem dados?", "type": "main", "index": 0 }]] },
     "Tem dados?": { "main": [[{ "node": "Inserir Tarefa", "type": "main", "index": 0 }], []] }
   },
   "settings": { "executionOrder": "v1" }
