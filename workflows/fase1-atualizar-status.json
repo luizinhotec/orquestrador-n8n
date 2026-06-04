@@ -118,7 +118,7 @@
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({ success: true, data: $('Checar Projeto').first().json.projeto }) }}",
+        "responseBody": "={{ JSON.stringify({ success: true, data: $('Projeto Existe?').first().json.projeto }) }}",
         "options": { "responseCode": 200 }
       },
       "id": "resposta-sucesso",
