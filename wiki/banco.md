@@ -21,7 +21,11 @@ Usuário: orq
 | nome | VARCHAR | Nome do membro |
 | email | VARCHAR UNIQUE | |
 | cargo | VARCHAR | Função na equipe |
+| senha | VARCHAR(255) | Hash/senha do usuário — **migration 001 necessária** |
+| perfil | VARCHAR(50) | Nível de acesso: `user` / `admin` — **migration 001 necessária** |
 | created_at | TIMESTAMP | |
+
+> ⚠️ Colunas `senha` e `perfil` não existem ainda. Executar `raw/migrations/001-add-auth-columns.sql`.
 
 ### projetos
 | Coluna | Tipo | Descrição |

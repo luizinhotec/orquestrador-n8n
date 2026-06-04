@@ -14,6 +14,18 @@
 - Campos do projeto definidos: nome, responsavel, data_inicio, prazo, status
 - Próximo passo: implementar workflow Fase 1 — Criar Projeto
 
+### Fase 3 — Funil Operacional (workflow reescrito)
+- Workflow `fase3-funil.json` criado do zero — versão anterior no n8n tinha encoding corrompido nas etapas acentuadas (ANÁLISE, HOMOLOGAÇÃO, PRODUÇÃO, CONCLUÍDO apareciam como AN?LISE etc.)
+- Causa: workflow anterior criado via UI n8n com charset incorreto
+- Correção: Code node agora usa strings UTF-8 literais no JSON; todas as etapas pré-populadas com 0 antes de preencher com dados do banco
+- **Ação pendente:** excluir workflow funil antigo no n8n e reimportar `workflows/fase3-funil.json`
+
+### Auth — diagnóstico e migration
+- Identificado: `/webhook/auth/login` retorna 404 — workflows de auth nunca foram importados no n8n
+- Identificado: tabela `usuarios` não tem colunas `senha` e `perfil` necessárias pelos workflows
+- Criada migration `raw/migrations/001-add-auth-columns.sql`
+- **Ação pendente:** executar migration + importar `auth-login.json` e `auth-register.json` no n8n
+
 ### Fase 2 — Workflows de Tarefas operacionais
 - Criar Tarefa, Listar Tarefas e Mover Tarefa testados e publicados
 - Listar retorna nome do projeto via JOIN
