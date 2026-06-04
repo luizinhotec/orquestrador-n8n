@@ -14,6 +14,11 @@
 - Campos do projeto definidos: nome, responsavel, data_inicio, prazo, status
 - Próximo passo: implementar workflow Fase 1 — Criar Projeto
 
+### Fase 2 — Workflows de Tarefas operacionais
+- Criar Tarefa, Listar Tarefas e Mover Tarefa testados e publicados
+- Listar retorna nome do projeto via JOIN
+- Schema tarefas ajustado: created_at e updated_at adicionados via ALTER TABLE
+
 ### Fase 1 — Workflow Criar Projeto operacional
 - Workflow importado no N8N e publicado
 - Credencial PostgreSQL configurada (postgres-orq)

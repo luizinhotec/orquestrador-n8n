@@ -21,9 +21,9 @@
 
 | Workflow | Webhook | Arquivo | Status |
 |----------|---------|---------|--------|
-| Criar Tarefa | POST /webhook/tarefa/criar | workflows/fase2-criar-tarefa.json | 🔄 Em desenvolvimento |
-| Listar Tarefas | GET /webhook/tarefa/listar | — | ⏳ Pendente |
-| Mover Tarefa no Funil | POST /webhook/tarefa/mover | — | ⏳ Pendente |
+| Criar Tarefa | POST /webhook/tarefa/criar | workflows/fase2-criar-tarefa.json | ✅ Ativo |
+| Listar Tarefas | GET /webhook/tarefa/listar | workflows/fase2-listar-tarefas.json | ✅ Ativo |
+| Mover Tarefa no Funil | POST /webhook/tarefa/mover | workflows/fase2-mover-tarefa.json | ✅ Ativo |
 
 ## Fase 3 — Funil Operacional
 
