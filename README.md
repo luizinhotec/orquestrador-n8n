@@ -1,16 +1,21 @@
-# Orquestrador N8N
+# REPOSITORIO ARQUIVADO
 
-Plataforma centralizada para gerenciamento de projetos e equipes via N8N + Claude + PostgreSQL.
+Este repositorio foi migrado para [orquestrador-dashboard](https://github.com/luizinhotec/orquestrador-dashboard).
 
-## Acesso
+Nao ha mais commits aqui.
 
-- **N8N Editor**: http://185.135.137.113:5678
-- **Metabase**: http://185.135.137.113:3000
+## Nova localizacao dos arquivos
 
-## Documentação
+```
+orquestrador-dashboard/
+  n8n/
+    workflows/    <- JSONs dos workflows (era workflows/ aqui)
+    migrations/   <- Scripts SQL (era raw/migrations/ aqui)
+    infra/        <- Referencia de infraestrutura Docker
+  docs/           <- Wiki tecnica (era wiki/ aqui)
+```
 
-Leia `CLAUDE.md` e `wiki/index.md`.
+## Acesso aos servicos (sem mudanca)
 
-## Status
-
-🔄 Fase 1 em desenvolvimento — 35% concluído
+- N8N Editor: http://185.135.137.113:5678
+- Metabase: http://185.135.137.113:3000
