@@ -61,6 +61,17 @@ Retornar JSON { success, data }
 > 1. Executar migration `raw/migrations/001-add-auth-columns.sql` no banco
 > 2. Importar `auth-login.json` e `auth-register.json` no n8n e ativar
 
+## Fase 6 — Análise IA
+
+| Workflow | Webhook | Arquivo | Status |
+|----------|---------|---------|--------|
+| Analisar Projetos | POST /webhook/ia/analisar | workflows/fase6-analise-ia.json | ⚠️ Importar no n8n |
+| Buscar Última Análise | GET /webhook/ia/analise | workflows/fase6-analise-buscar.json | ⚠️ Importar no n8n |
+
+> **Pré-requisito:** variável `ANTHROPIC_API_KEY` configurada no ambiente do n8n.
+> No docker-compose: adicionar `ANTHROPIC_API_KEY=sk-ant-...` em `environment` do serviço `n8n-orq`.
+> Executar `raw/migrations/002-add-analises-table.sql` antes de ativar.
+
 ## Links
 
 - [[banco]] — tabelas que os workflows escrevem
